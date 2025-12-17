@@ -120,6 +120,10 @@ Yuber3 is a Bun-powered Next.js (App Router) application that renders a client-o
 | `docs/` | Diagrams and architecture notes | `docs/app_flow_and_agents.mmd` |
 | `patches/` | Dependency patch files (when needed) | `patches/README.md` |
 
+## Folder READMEs (GitHub “middle column” descriptions)
+
+GitHub will render a folder’s `README.md` when you click into that folder. In addition to the top-level docs, key subfolders now include their own `README.md` so browsing deeper still explains what you’re looking at (e.g. `client/src/hooks/`, `client/src/pages/`, `app/api/*`, `server/mastra/*`).
+
 ## Tech stack
 
 - **Runtime/package manager**: Bun
