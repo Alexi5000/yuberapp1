@@ -23,7 +23,7 @@ This guide describes how to set up the Yuber 3 application locally for developme
 2.  **Environment Configuration**:
     Copy the example environment file and fill in your details.
     ```bash
-    cp .env.example .env
+    cp env.example .env
     ```
     Open `.env` in your editor and populate:
     - `TURSO_DATABASE_URL`: `libsql://...`
@@ -85,4 +85,4 @@ This guide describes how to set up the Yuber 3 application locally for developme
     - Ensure Bun is installed (see `https://bun.sh/`) or use the Docker option.
 
 - **Missing Environment Variables**:
-    - Double-check `.env` exists and is populated. Use `.env.example` as the template.
+    - Double-check `.env` exists and is populated. Use `env.example` as the template.

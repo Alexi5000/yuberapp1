@@ -1,0 +1,34 @@
+name: Bug report
+description: Report something that is broken or confusing
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+      description: What did you expect to happen, and what actually happened?
+      placeholder: Clear, reproducible description
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps so someone else can reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS + browser + Bun version (if relevant)
+      placeholder: Windows 11, Chrome 131, Bun 1.x
+    validations:
+      required: false
+
+

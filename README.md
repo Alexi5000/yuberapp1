@@ -133,6 +133,13 @@ GitHub will render a folder’s `README.md` when you click into that folder. In 
 - **DB**: Turso/libSQL + Drizzle ORM
 - **Validation**: Zod
 
+## Repo docs
+
+- `HACKATHON.md`: quick demo/review guide
+- `SETUP.md`: local and Docker setup steps
+- `SECURITY.md`: vulnerability reporting
+- `CONTRIBUTING.md`: contribution guidelines
+
 ## Repository layout (what to read first)
 
 - `app/`: Next.js routes, layouts, and API route handlers
@@ -161,10 +168,10 @@ GitHub will render a folder’s `README.md` when you click into that folder. In 
 bun install
 ```
 
-2. Create `.env` from `.env.example` and fill in values:
+2. Create `.env` from `env.example` and fill in values:
 
 ```bash
-cp .env.example .env
+cp env.example .env
 ```
 
 3. Run database migrations (Drizzle):
@@ -191,7 +198,7 @@ The app reads env vars from `.env`. Minimum useful variables:
 - **NEXT_PUBLIC_GOOGLE_MAPS_API_KEY**: Google Maps key (client-side)
 - **JWT_SECRET**: Cookie/JWT secret for local sessions
 
-See `.env.example` for the full list of placeholders.
+See `env.example` for the full list of placeholders.
 
 ## Scripts
 
@@ -245,8 +252,9 @@ Drizzle + libSQL:
 
 ## Notes
 
-- Do not commit secrets. `.env.example` must contain placeholders only.
+- Do not commit secrets. `env.example` contains placeholders only.
 - `bun.lock` is tracked; `package-lock.json` is not used.
+
 
 ## Contributors
 
