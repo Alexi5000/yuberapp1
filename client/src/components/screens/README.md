@@ -1,5 +1,17 @@
 # `client/src/components/screens/`
 
+Screen components grouped by product area. These map to `SCREENS` in `shared/lib/brand.ts` and are rendered from `client/src/App.tsx`.
+
+## Groups
+
+- `onboarding/`: early setup and signup flow
+- `conversation/`: chat and AI search/recommendation flow
+- `booking/`: booking confirmation, payment, tracking, and issue resolution
+- `account/`: profile, settings, notification and support screens
+- `retention/`: rating/review, sharing, referrals, and rebooking
+
+# `client/src/components/screens/`
+
 Primary “phone UI” screens, grouped by product flow.
 
 ## Flows

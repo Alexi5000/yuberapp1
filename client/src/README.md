@@ -1,5 +1,18 @@
 # `client/src/`
 
+Client app source code.
+
+## Main areas
+
+- `App.tsx`: screen navigation + orchestration of the main product flow
+- `providers/`: React providers (tRPC, React Query, theme)
+- `components/`: reusable UI and screen components
+- `pages/`: legacy “page-like” components (some screens are still here)
+- `lib/`: client utilities and types (`trpc.ts`, `types.ts`, `utils.ts`)
+- `types/`: TS declaration patches (e.g., JSX custom elements)
+
+# `client/src/`
+
 Main React code for the client-only “phone UI”.
 
 ## Layout

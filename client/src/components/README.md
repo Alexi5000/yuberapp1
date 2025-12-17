@@ -1,5 +1,15 @@
 # `client/src/components/`
 
+Reusable components used by the client UI.
+
+## Subfolders
+
+- `screens/`: screen-level components that correspond to `shared/lib/brand.ts` screen IDs
+- `shared/`: shared layout primitives used across screens (phone frame, chat bubbles, etc.)
+- `ui/`: UI component library (buttons, dialogs, inputs, etc.)
+
+# `client/src/components/`
+
 Reusable components for the client UI.
 
 ## Subdirectories

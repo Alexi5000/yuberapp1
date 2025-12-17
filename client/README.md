@@ -1,5 +1,19 @@
 # `client/`
 
+Client-side application implementation (the “phone UI”) rendered inside the Next.js app.
+
+## What lives here
+
+- `public/`: static assets used by the client (local-only helpers, test pages)
+- `src/`: the client app, UI components, screens, and tRPC wiring
+
+## Entry points
+
+- `src/app_entry.tsx`: wraps the app in providers (tRPC/React Query)
+- `src/App.tsx`: main client app that manages screen navigation and flow state
+
+# `client/`
+
 Client-side “phone UI” application code.
 
 ## What lives here
