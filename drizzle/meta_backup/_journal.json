@@ -1,0 +1,9 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    { "idx": 0, "version": "5", "when": 1765419992541, "tag": "0000_nifty_rocket_raccoon", "breakpoints": true },
+    { "idx": 1, "version": "5", "when": 1765420192316, "tag": "0001_clean_timeslip", "breakpoints": true },
+    { "idx": 2, "version": "5", "when": 1765430000000, "tag": "0002_add_search_history", "breakpoints": true }
+  ]
+}

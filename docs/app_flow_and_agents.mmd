@@ -1,0 +1,78 @@
+flowchart TD
+  %% ======================
+  %% UI FLOW (S01-S30)
+  %% ======================
+  U0[User_Opens_YUBER] --> S01[S01_Splash_Screen]
+  S01 --> S02[S02_Value_Prop_Carousel]
+  S02 --> S03[S03_Permissions_Hub]
+  S03 --> S04{S04_Frictionless_Signup}
+  S04 -->|Skip| S05[S05_Conversation_Hub]
+  S04 -->|Create_Account| S05
+
+  %% Retention prompt
+  S25[S25_Rebooking_Prompt] -.Notification.-> S05
+
+  %% Conversation / Search
+  S05 --> S12[S12_Conversation_History]
+  S12 --> S06[S06_Conversation_in_Progress]
+  S06 --> S08[S08_AI_Clarification_Prompt]
+  S08 --> S07[S07_AI_Search_Radar]
+  S07 --> S09[S09_AI_Recommendation_Card]
+  S09 -->|Accept| S13[S13_Booking_Confirmation]
+  S09 -->|See_Other_Options| S10[S10_Multiple_Options_View]
+  S09 -->|View_Details| S11[S11_Provider_Details_Page]
+  S10 --> S09
+  S11 --> S09
+
+  %% Booking / Payment / Dispatch
+  S13 --> S14[S14_Add_Payment_Method]
+  S14 --> S15[S15_Payment_Success]
+  S15 --> S16[S16_Dispatch_in_Progress]
+  S16 --> S17[S17_Live_Tracking_Map]
+  S17 --> S18[S18_Job_or_Service_in_Progress]
+  S18 --> S19[S19_Job_Complete_and_Receipt]
+  S19 --> S21[S21_Rate_and_Review]
+  S21 --> S22[S22_Share_Experience]
+  S22 --> S23[S23_Referral_and_Rewards_Hub]
+  S19 --> S20[S20_Problem_Resolution_Center]
+
+  %% Profile / Settings hub and sub-screens
+  S05 --> S26[S26_Profile_and_Settings]
+  S26 --> S24[S24_Favorite_Providers]
+  S26 --> S27[S27_Booking_History]
+  S26 --> S28[S28_Manage_Payment_Methods]
+  S26 --> S29[S29_Notification_Settings]
+  S26 --> S30[S30_Help_and_Support_Center]
+
+  S24 --> S26
+  S27 --> S26
+  S28 --> S26
+  S29 --> S26
+  S30 --> S26
+
+  %% ======================
+  %% BACKEND / SERVICES
+  %% ======================
+  subgraph backend [Backend_(Next.js_API_+_tRPC)]
+    TRPC[/Next.js_/api/trpc/] --> AR[server/routers.ts\nappRouter]
+    AR --> AgentRouter[server/routers/agent.ts\nagent.chatHelp\nagent.chatSettings]
+    AgentRouter --> HelpAgent[Mastra_helpAgent\n(Screen_30)]
+    AgentRouter --> SettingsAgent[Mastra_settingsAgent\n(Screen_29)]
+  end
+
+  subgraph external [External_Services]
+    OpenAI[(OpenAI_API)]
+    Turso[(Turso_libSQL_DB)]
+    Yelp[(Yelp_Fusion_API)]
+  end
+
+  %% Screen 30 wiring
+  S30 -->|tRPC_mutation\nagent.chatHelp| TRPC
+  HelpAgent --> OpenAI
+  HelpAgent --> Yelp
+  HelpAgent --> Turso
+
+  %% Screen 29 wiring
+  S29 -->|tRPC_mutation\nagent.chatSettings| TRPC
+  SettingsAgent --> OpenAI
+  SettingsAgent --> Turso

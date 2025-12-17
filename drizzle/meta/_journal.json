@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1765848978185,
+      "tag": "0000_tough_meggan",
+      "breakpoints": true
+    }
+  ]
+}
