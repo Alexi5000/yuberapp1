@@ -23,24 +23,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # ─────────────────────────────────────────────────────────────
-# Stage 3: Production runner (minimal image)
+# Stage 3: Production runner
 # ─────────────────────────────────────────────────────────────
-FROM oven/bun:1-slim AS runner
+FROM oven/bun:1 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
 # Copy standalone build output
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 # Railway sets PORT; Next.js standalone server respects it
 EXPOSE 3000
