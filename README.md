@@ -107,6 +107,19 @@ Drop screenshots into `docs/screenshots/` using these exact filenames and they�
 
 Yuber3 is a Bun-powered Next.js (App Router) application that renders a client-only “phone UI” experience and exposes a typed API via tRPC. It integrates with Turso/libSQL via Drizzle ORM and can search providers via Yelp.
 
+## Project map (what each part is)
+
+| Part | What it is | Start here |
+| --- | --- | --- |
+| `app/` | Next.js App Router pages/layouts + API route handlers | `app/page.tsx`, `app/layout.tsx`, `app/api/trpc/[trpc]/route.ts` |
+| `client/` | Client “phone UI” app (screens + components) rendered inside Next | `client/src/app_entry.tsx`, `client/src/App.tsx` |
+| `server/` | tRPC routers + server utilities (auth, env, DB, Yelp) | `server/routers.ts`, `server/db.ts`, `server/_core/` |
+| `shared/` | Shared constants and canonical screen IDs | `shared/lib/brand.ts`, `shared/const.ts` |
+| `drizzle/` | Drizzle schema + migrations for libSQL/SQLite | `drizzle/schema.ts`, `drizzle/README.md` |
+| `scripts/` | One-off utilities (seed/inspect/verify) | `scripts/README.md` |
+| `docs/` | Diagrams and architecture notes | `docs/app_flow_and_agents.mmd` |
+| `patches/` | Dependency patch files (when needed) | `patches/README.md` |
+
 ## Tech stack
 
 - **Runtime/package manager**: Bun
