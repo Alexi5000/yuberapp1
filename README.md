@@ -1,5 +1,94 @@
 # Yuber3
 
+## Story
+
+Yuber started in a late night Discord voice call.
+Three strangers were talking about why every AI app still feels like a chatbot that can’t help in the real world.
+
+We wondered why no one built an agent that actually solves problems.
+Real problems.
+Pipes bursting.
+Doors locked.
+Power failing.
+
+That call turned into a mission.
+
+What it does
+
+Yuber is instant help with intelligent dispatch.
+You tell the AI what happened in plain English.
+
+It understands your crisis.
+It finds the nearest top rated pro through Yelp.
+It dispatches them automatically.
+It tracks the job until help arrives.
+
+No searching.
+No phone trees.
+No panic.
+
+How we built it
+
+We built it out loud on Discord.
+Metabunny led the front end.
+Cipher built the system architecture.
+Alex handled the agents and automation.
+
+We kept the stack fast.
+Bun.
+Next.
+Mastra.
+Tailwind.
+In memory data for near zero latency.
+
+Everything was built in small, fast loops.
+Plan then execute.
+Ship, then refine.
+
+Challenges we ran into
+
+Agents taking too long to decide.
+Slow APIs slowing down emergencies.
+
+We had to cut anything that added friction.
+We rebuilt flows until they felt instant.
+
+We learned people will forgive many things,
+but not lag during a crisis.
+
+Accomplishments that we're proud of
+
+We built a working prototype in one Discord call.
+We built trust before we built code.
+
+We shipped without meeting in person.
+We proved you can build real products with strangers who care about the same problems.
+
+What we learned
+
+Speed matters.
+Clarity matters more.
+
+AI should take action, not just chat.
+People want outcomes, not information.
+
+And great teams can form anywhere.
+Even at 2 AM in a Discord voice channel.
+
+What's next for Yuber
+
+Faster dispatching.
+More service categories.
+Real partnerships with small businesses.
+
+We want Yuber to be the first call on someone’s worst day.
+We want local pros to get real customers, not random leads.
+
+And we want to keep building the same way we started.
+In the open.
+In the community.
+In the calls where real builders meet.
+
 ## Screenshots
 
 Drop screenshots into `docs/screenshots/` using these exact filenames and they’ll render automatically on GitHub:
@@ -14,9 +103,7 @@ Drop screenshots into `docs/screenshots/` using these exact filenames and they�
 ![Tracking](docs/screenshots/tracking.png)
 ![Rating](docs/screenshots/rating.png)
 
-## Story
-
-Yuber3 is a Bun-powered Next.js (App Router) application that renders a client-only “phone UI” experience and exposes a typed API via tRPC. It integrates with Turso/libSQL via Drizzle ORM and can search providers via Yelp.
+> Note: these images will not display until the actual `.png` files are committed at the paths above.
 
 Yuber3 is a Bun-powered Next.js (App Router) application that renders a client-only “phone UI” experience and exposes a typed API via tRPC. It integrates with Turso/libSQL via Drizzle ORM and can search providers via Yelp.
 
