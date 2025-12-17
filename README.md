@@ -244,3 +244,8 @@ Drizzle + libSQL:
 - Do not commit secrets. `.env.example` must contain placeholders only.
 - `bun.lock` is tracked; `package-lock.json` is not used.
 
+## Contributors
+
+- [@digitalpersonalab](https://github.com/digitalpersonalab) — contributors welcome ([profile](https://github.com/digitalpersonalab))
+- [@cipher-rc5](https://github.com/cipher-rc5) — system architecture ([profile](https://github.com/cipher-rc5))
+
