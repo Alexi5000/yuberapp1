@@ -1,263 +1,270 @@
+<div align="center">
+
+<img src="assets/icon.png" alt="Yuber Logo" width="120" />
+
 # Yuber
 
-## Story
+### The Uber for Home Emergencies
 
-Yuber started in a late night Discord voice call.
-Three strangers were talking about why every AI app still feels like a chatbot that can’t help in the real world.
+**Tell the AI what broke. It finds the nearest pro, dispatches them, and tracks the job — all in under 60 seconds.**
 
-We wondered why no one built an agent that actually solves problems.
-Real problems.
-Pipes bursting.
-Doors locked.
-Power failing.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Mastra](https://img.shields.io/badge/Mastra-AI%20Agents-8b5cf6)](https://mastra.ai)
+[![Bun](https://img.shields.io/badge/Bun-Runtime-f9f1e1?logo=bun)](https://bun.sh)
+[![tRPC](https://img.shields.io/badge/tRPC-Typed%20API-2596be)](https://trpc.io)
 
-That call turned into a mission.
+[How It Works](#-how-it-works) · [Features](#-features) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Contributing](CONTRIBUTING.md)
 
-What it does
+---
 
-Yuber is instant help with intelligent dispatch.
-You tell the AI what happened in plain English.
+<img src="assets/cover.png" alt="Yuber App" width="100%" />
 
-It understands your crisis.
-It finds the nearest top rated pro through Yelp.
-It dispatches them automatically.
-It tracks the job until help arrives.
+</div>
 
-No searching.
-No phone trees.
-No panic.
+---
 
-How we built it
+## The Problem
 
-We built it out loud on Discord.
-Metabunny led the front end.
-Cipher built the system architecture.
-Alex handled the agents and automation.
+Your pipe bursts at 2 AM. Your door lock jams on a Sunday. Your power goes out before a deadline. What do you do? Google frantically, call five numbers, get voicemail, and wait. The current system for emergency home services is broken — it's slow, stressful, and analog.
 
-We kept the stack fast.
-Bun.
-Next.
-Mastra.
-Tailwind.
-In memory data for near zero latency.
+## The Solution
 
-Everything was built in small, fast loops.
-Plan then execute.
-Ship, then refine.
+Yuber is **instant help with intelligent dispatch**. You tell the AI what happened in plain English. It understands your crisis, finds the nearest top-rated pro through Yelp, dispatches them automatically, and tracks the job until help arrives. No searching. No phone trees. No panic.
 
-Challenges we ran into
+> *"My kitchen pipe burst and water is everywhere"*
+>
+> Yuber understands, finds a 4.8-star plumber 0.3 miles away, dispatches them, and gives you a live ETA. Done.
 
-Agents taking too long to decide.
-Slow APIs slowing down emergencies.
+---
 
-We had to cut anything that added friction.
-We rebuilt flows until they felt instant.
+## The Origin Story
 
-We learned people will forgive many things,
-but not lag during a crisis.
+Yuber started in a late-night Discord voice call. Three strangers were talking about why every AI app still feels like a chatbot that can't help in the real world. We wondered why no one built an agent that actually solves problems — real problems. Pipes bursting. Doors locked. Power failing. That call turned into a mission, and we shipped a working prototype before sunrise.
 
-Accomplishments that we're proud of
+---
 
-We built a working prototype in one Discord call.
-We built trust before we built code.
+## How It Works
 
-We shipped without meeting in person.
-We proved you can build real products with strangers who care about the same problems.
+| Step | What Happens |
+|---|---|
+| **1. Describe** | Tell the AI what went wrong in plain English |
+| **2. Understand** | Mastra AI agents classify the emergency and extract requirements |
+| **3. Search** | Yelp API finds the nearest top-rated professionals |
+| **4. Dispatch** | The dispatch agent contacts and assigns the best match |
+| **5. Track** | Real-time status updates until help arrives |
 
-What we learned
+---
 
-Speed matters.
-Clarity matters more.
+## Features
 
-AI should take action, not just chat.
-People want outcomes, not information.
+- **AI-Powered Triage** — Mastra agents understand your emergency and route to the right service category
+- **Intelligent Dispatch** — Automated provider matching based on proximity, ratings, and availability
+- **Yelp Integration** — Real-time search for top-rated local professionals
+- **Google Maps** — Live location tracking and ETA visualization
+- **Phone UI Experience** — Native mobile-app feel rendered in the browser
+- **Typed API** — End-to-end type safety with tRPC + Zod validation
+- **Cookie Auth** — JWT-based session management with demo login
+- **Docker Ready** — Full Docker Compose setup for instant deployment
+- **Multi-Agent System** — Help agent, dispatch agent, and settings agent working in concert
 
-And great teams can form anywhere.
-Even at 2 AM in a Discord voice channel.
+---
 
-What's next for Yuber
+## AI Agent Architecture
 
-Faster dispatching.
-More service categories.
-Real partnerships with small businesses.
+Yuber uses **Mastra** to orchestrate three specialized AI agents:
 
-We want Yuber to be the first call on someone’s worst day.
-We want local pros to get real customers, not random leads.
+| Agent | Role | What It Does |
+|---|---|---|
+| **Help Agent** | Triage & Chat | Understands the user's emergency, classifies urgency, asks clarifying questions |
+| **Dispatch Agent** | Provider Matching | Searches Yelp, ranks providers, handles assignment and notification |
+| **Settings Agent** | User Preferences | Manages location, notification preferences, and account settings |
 
-And we want to keep building the same way we started.
-In the open.
-In the community.
-In the calls where real builders meet.
+Each agent has access to core functions: `chat`, `search_providers`, `dispatch`, and `get_history`.
 
-## Screenshots
+---
 
-Drop screenshots into `docs/screenshots/` using these exact filenames and they’ll render automatically on GitHub:
+## Tech Stack
 
-- `docs/screenshots/splash.png`
-- `docs/screenshots/signup.png`
-- `docs/screenshots/tracking.png`
-- `docs/screenshots/rating.png`
+| Layer | Technology |
+|---|---|
+| **Runtime** | Bun |
+| **Framework** | Next.js 15 (App Router) |
+| **Language** | TypeScript (strict) |
+| **UI** | React + Tailwind CSS + Radix UI |
+| **API** | tRPC + TanStack React Query |
+| **AI Agents** | Mastra + OpenAI |
+| **Database** | Turso (libSQL) + Drizzle ORM |
+| **Provider Search** | Yelp Fusion API |
+| **Maps** | Google Maps API |
+| **Validation** | Zod |
+| **Auth** | JWT cookie sessions |
+| **Deployment** | Docker + Docker Compose |
 
-![Splash](docs/screenshots/splash.png)
-![Signup](docs/screenshots/signup.png)
-![Tracking](docs/screenshots/tracking.png)
-![Rating](docs/screenshots/rating.png)
+---
 
-> Note: these images will not display until the actual `.png` files are committed at the paths above.
+## Quick Start
 
-Yuber3 is a Bun-powered Next.js (App Router) application that renders a client-only “phone UI” experience and exposes a typed API via tRPC. It integrates with Turso/libSQL via Drizzle ORM and can search providers via Yelp.
+### Prerequisites
 
-## Project map (what each part is)
+- **Bun** >= 1.0
+- **Docker** (optional, for containerized setup)
 
-| Part | What it is | Start here |
-| --- | --- | --- |
-| `app/` | Next.js App Router pages/layouts + API route handlers | `app/page.tsx`, `app/layout.tsx`, `app/api/trpc/[trpc]/route.ts` |
-| `client/` | Client “phone UI” app (screens + components) rendered inside Next | `client/src/app_entry.tsx`, `client/src/App.tsx` |
-| `server/` | tRPC routers + server utilities (auth, env, DB, Yelp) | `server/routers.ts`, `server/db.ts`, `server/_core/` |
-| `shared/` | Shared constants and canonical screen IDs | `shared/lib/brand.ts`, `shared/const.ts` |
-| `drizzle/` | Drizzle schema + migrations for libSQL/SQLite | `drizzle/schema.ts`, `drizzle/README.md` |
-| `scripts/` | One-off utilities (seed/inspect/verify) | `scripts/README.md` |
-| `docs/` | Diagrams and architecture notes | `docs/app_flow_and_agents.mmd` |
-| `patches/` | Dependency patch files (when needed) | `patches/README.md` |
-
-## Folder READMEs (GitHub “middle column” descriptions)
-
-GitHub will render a folder’s `README.md` when you click into that folder. In addition to the top-level docs, key subfolders now include their own `README.md` so browsing deeper still explains what you’re looking at (e.g. `client/src/hooks/`, `client/src/pages/`, `app/api/*`, `server/mastra/*`).
-
-## Tech stack
-
-- **Runtime/package manager**: Bun
-- **Web framework**: Next.js App Router
-- **UI**: React, Tailwind CSS, Radix UI primitives
-- **API**: tRPC + TanStack React Query
-- **DB**: Turso/libSQL + Drizzle ORM
-- **Validation**: Zod
-
-## Repo docs
-
-- `HACKATHON.md`: quick demo/review guide
-- `SETUP.md`: local and Docker setup steps
-- `SECURITY.md`: vulnerability reporting
-- `CONTRIBUTING.md`: contribution guidelines
-
-## Repository layout (what to read first)
-
-- `app/`: Next.js routes, layouts, and API route handlers
-- `client/`: Client application shell (the “phone UI”) and UI components
-- `server/`: Server-side tRPC routers and backend helpers (auth, env, DB, external API clients)
-- `shared/`: Shared constants and “brand” screen IDs used by the client navigation
-- `drizzle/`: DB schema + migrations (SQLite/libSQL)
-- `scripts/`: One-off scripts for DB inspection/seed and key verification
-- `docs/`: Diagrams and architecture notes
-- `patches/`: Dependency patches (when needed)
-
-## Entry points
-
-- **Web UI**: `app/page.tsx` dynamically loads `client/src/app_entry.tsx` (client-only)
-- **tRPC endpoint**: `app/api/trpc/[trpc]/route.ts` mounts `server/routers.ts`
-- **Auth routes**:
-  - `app/api/auth/demo-login/route.ts`
-  - `app/api/auth/login/route.ts`
-  - `app/api/oauth/callback/route.ts`
-
-## Quick start (local)
-
-1. Install dependencies:
+### 1. Clone and Install
 
 ```bash
+git clone https://github.com/Alexi5000/yuberapp1.git
+cd yuberapp1
 bun install
 ```
 
-2. Create `.env` from `env.example` and fill in values:
+### 2. Configure Environment
 
 ```bash
-cp env.example .env
+cp .env.example .env
 ```
 
-3. Run database migrations (Drizzle):
+Set your API keys:
+
+| Variable | Required | Description |
+|---|---|---|
+| `TURSO_DATABASE_URL` | Yes | Turso/libSQL database URL |
+| `TURSO_AUTH_TOKEN` | Yes | Turso auth token |
+| `YELP_API_KEY` | Yes | Yelp Fusion API key for provider search |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Yes | Google Maps (client-side) |
+| `JWT_SECRET` | Yes | Cookie/JWT session secret |
+| `OPENAI_API_KEY` | Yes | OpenAI for Mastra agents |
+
+### 3. Run Migrations
 
 ```bash
 bun run db:push
 ```
 
-4. Start the dev server:
+### 4. Start Development
 
 ```bash
 bun run dev
 ```
 
-Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Environment variables
+### Docker Setup
 
-The app reads env vars from `.env`. Minimum useful variables:
+```bash
+docker compose up
+```
 
-- **TURSO_DATABASE_URL**: Turso/libSQL database URL
-- **TURSO_AUTH_TOKEN**: Turso auth token
-- **YELP_API_KEY**: Yelp API key (required for Yelp REST search)
-- **NEXT_PUBLIC_GOOGLE_MAPS_API_KEY**: Google Maps key (client-side)
-- **JWT_SECRET**: Cookie/JWT secret for local sessions
+> Full setup guide: [SETUP.md](./SETUP.md)
 
-See `env.example` for the full list of placeholders.
+---
+
+## Architecture
+
+### Rendering Model
+
+Next.js App Router renders a minimal shell and dynamically loads the client app. `app/page.tsx` imports `client/src/app_entry.tsx` with `ssr: false`, creating a native phone-UI experience in the browser.
+
+### API Model
+
+tRPC provides end-to-end type safety from client to server. `server/routers.ts` defines the main `appRouter`, and `server/_core/context.ts` attaches authenticated user context.
+
+### Auth Model
+
+JWT cookie-based sessions with local auth (`server/_core/localAuth.ts`) and demo login support for quick testing.
+
+### Database Model
+
+Drizzle ORM with Turso/libSQL. Schema defined in `drizzle/schema.ts`, data access through `server/db.ts`.
+
+---
+
+## Project Structure
+
+```
+yuberapp1/
+├── app/                   # Next.js App Router pages + API routes
+│   ├── api/              # tRPC endpoint + auth routes
+│   └── login/            # Login page
+├── client/                # Phone UI client application
+│   └── src/
+│       ├── pages/        # Screen components (splash, home, tracking, etc.)
+│       ├── components/   # Reusable UI components
+│       ├── hooks/        # Custom React hooks
+│       └── contexts/     # React context providers
+├── server/                # Backend logic
+│   ├── mastra/           # AI agent definitions and core functions
+│   │   ├── agents/      # Help, Dispatch, Settings agents
+│   │   └── core/        # Chat, search, dispatch, history functions
+│   └── _core/            # Auth, env, DB, Yelp client utilities
+├── shared/                # Shared constants and screen IDs
+├── drizzle/               # Database schema + migrations
+├── scripts/               # DB seed, inspect, and verification scripts
+├── docs/                  # Architecture diagrams and notes
+└── .github/               # CI/CD, issue templates, CODEOWNERS
+```
+
+---
 
 ## Scripts
 
-- **dev**: `bun run dev` (Next dev server)
-- **build**: `bun run build` (production build)
-- **start**: `bun run start` (run production server; requires `bun run build` first)
-- **check**: `bun run check` (TypeScript typecheck)
-- **db:push**: `bun run db:push` (generate + apply Drizzle migrations)
+```bash
+bun run dev        # Start Next.js dev server
+bun run build      # Production build
+bun run start      # Run production server
+bun run check      # TypeScript typecheck
+bun run db:push    # Generate + apply Drizzle migrations
+```
 
-## Architecture overview
+---
 
-### Rendering model (high level)
+## Documentation
 
-The Next.js App Router renders a minimal shell and dynamically loads the client app:
+| Document | Description |
+|---|---|
+| [Setup Guide](./SETUP.md) | Local and Docker setup instructions |
+| [Hackathon Guide](./HACKATHON.md) | Quick demo and review walkthrough |
+| [Contributing](./CONTRIBUTING.md) | How to contribute |
+| [Security](./SECURITY.md) | Vulnerability reporting |
+| [Code of Conduct](./CODE_OF_CONDUCT.md) | Community guidelines |
+| [Architecture Diagram](./docs/app_flow_and_agents.mmd) | Agent flow and system architecture |
 
-- `app/page.tsx` dynamically imports `client/src/app_entry.tsx` with `ssr: false`.
-- `client/src/App.tsx` hosts the “phone UI” and does screen navigation via `shared/lib/brand.ts`.
+---
 
-### API model
+## Roadmap
 
-Typed API is exposed via tRPC:
+- [ ] Real-time push notifications for dispatch updates
+- [ ] Expanded service categories (HVAC, pest control, appliance repair)
+- [ ] Provider-side dashboard for job management
+- [ ] Payment integration (Stripe)
+- [ ] Rating and review system
+- [ ] SMS/WhatsApp dispatch notifications
+- [ ] Multi-language support
 
-- `app/api/trpc/[trpc]/route.ts` mounts the tRPC fetch adapter.
-- `server/routers.ts` defines the main `appRouter`.
-- `server/_core/context.ts` attaches `ctx.user` when session cookies are present.
-
-### Auth model
-
-Local cookie-based sessions:
-
-- `server/_core/localAuth.ts` signs/verifies JWT session cookies.
-- `app/api/auth/login/route.ts` and `app/api/auth/demo-login/route.ts` issue cookies via `server/_core/oauth.ts`.
-
-### Database model
-
-Drizzle + libSQL:
-
-- `drizzle/schema.ts` defines tables.
-- `server/db.ts` is the data-access layer used by routers.
-
-## Directory guide
-
-- `app/`: Next.js App Router pages + route handlers
-- `client/`: “phone UI” client code (components/screens/pages) and tRPC client wiring
-- `server/`: tRPC router + server-side helpers (auth/db/yelp)
-- `shared/`: shared constants and types (e.g. screen IDs)
-- `drizzle/`: schema + migrations
-- `scripts/`: DB maintenance and verification scripts
-- `docs/`: diagrams and docs
-- `patches/`: patch-package style patches for dependencies
-
-## Notes
-
-- Do not commit secrets. `env.example` contains placeholders only.
-- `bun.lock` is tracked; `package-lock.json` is not used.
-
+---
 
 ## Contributors
 
-- [@digitalpersonalab](https://github.com/digitalpersonalab) — contributors welcome ([profile](https://github.com/digitalpersonalab))
-- [@cipher-rc5](https://github.com/cipher-rc5) — system architecture ([profile](https://github.com/cipher-rc5))
+| Contributor | Role |
+|---|---|
+| [@Alexi5000](https://github.com/Alexi5000) | AI agents and automation |
+| [@cipher-rc5](https://github.com/cipher-rc5) | System architecture |
+| [@digitalpersonalab](https://github.com/digitalpersonalab) | Frontend and design |
+
+---
+
+## License
+
+MIT — see [LICENSE](./LICENSE) for details.
+
+---
+
+<div align="center">
+
+**Built by [Alex Cinovoj](https://github.com/Alexi5000) · [TechTide AI](https://github.com/Alexi5000)**
+
+*Your pipe burst. Help is already on the way.*
+
+</div>
 
