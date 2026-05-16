@@ -1,5 +1,5 @@
 # Yuber3 Dockerfile - Production build for Railway / container deployments
-FROM oven/bun:1 AS base
+FROM oven/bun:1.3.4 AS base
 WORKDIR /app
 
 # ─────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ RUN bun run build
 # ─────────────────────────────────────────────────────────────
 # Stage 3: Production runner
 # ─────────────────────────────────────────────────────────────
-FROM oven/bun:1 AS runner
+FROM oven/bun:1.3.4 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -40,5 +40,8 @@ COPY --from=builder /app/.next/static ./.next/static
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bun -e "fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
 CMD ["bun", "server.js"]

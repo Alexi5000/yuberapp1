@@ -1,88 +1,127 @@
-# Yuber 3 - Local Development Setup
+# Yuber Local and Production Setup
 
-This guide describes how to set up the Yuber 3 application locally for development.
+This guide describes how to run Yuber locally, verify configuration safely, apply database migrations, and prepare a production deployment. Yuber is a full-stack Next.js application that depends on Bun, Turso/libSQL, Yelp, OpenAI-compatible LLM access, and Google Maps for the complete production experience.
 
 ## Prerequisites
 
-- **Docker Desktop** (for Option A)
-- **Bun** runtime (v1.x) (for Option B)
-- **Turso Account**: You need a Turso database URL and Auth Token.
-  - Sign up/login at [turso.tech](https://turso.tech)
-  - Create a database: `turso db create yuber-local`
-  - Get URL: `turso db show yuber-local --url`
-  - Get Token: `turso db tokens create yuber-local`
+| Tool or Service | Recommended Version | Required For |
+|---|---:|---|
+| Bun | `1.3.4` | Dependency installation, scripts, development, and production runtime. |
+| Node.js | `22.x` | Tooling compatibility for the Next.js and TypeScript ecosystem. |
+| Docker | Current stable | Containerized local smoke tests and production-image validation. |
+| Turso/libSQL | Hosted database | Production persistence and migration validation. |
+| Yelp Fusion API | Active key | Live provider search. |
+| OpenAI-compatible API | Active key | AI triage and dispatch assistance. |
+| Google Maps API | Browser key | Map rendering and location UX. |
 
-## Setup
+## Clone and Install
 
-1.  **Clone the Repository** (if you haven't already):
-    ```bash
-    git clone https://github.com/Alexi5000/yuberapp1.git
-    cd yuber_3
-    ```
+```bash
+git clone https://github.com/Alexi5000/yuberapp1.git
+cd yuberapp1
+bun install --frozen-lockfile
+```
 
-2.  **Environment Configuration**:
-    Copy the example environment file and fill in your details.
-    ```bash
-    cp env.example .env
-    ```
-    Open `.env` in your editor and populate:
-    - `TURSO_DATABASE_URL`: `libsql://...`
-    - `TURSO_AUTH_TOKEN`: `...`
-    - Other keys as needed (use placeholders for initial startup if you are not testing those flows).
+## Environment Configuration
 
-## Option A: Docker Setup (Recommended)
+Copy the example template and fill in the values you need for the workflows you are testing.
 
-1.  **Build and Start**:
-    ```bash
-    docker-compose up --build
-    ```
-    This command will build the image using `oven/bun` and start the service on port 3000.
+```bash
+cp .env.example .env.local
+bun run validate:env
+```
 
-2.  **Database Migration**:
-    Open a new terminal and run migrations inside the container:
-    ```bash
-    docker-compose exec app bun run db:push
-    ```
+The non-strict validation command is safe for development and pull requests because it only reports whether each variable is configured. It does not print secret values. Production deployments should use the stricter release gate.
 
-3.  **Seed Data** (Optional):
-    ```bash
-    docker-compose exec app bun run scripts/seed-providers.mjs
-    ```
+```bash
+bun run validate:env:prod
+```
 
-## Option B: Local Setup
+| Variable | Required for Production | Notes |
+|---|---:|---|
+| `TURSO_DATABASE_URL` | Yes | Use a hosted `libsql://...` URL for production. |
+| `TURSO_AUTH_TOKEN` | Yes | Required for hosted Turso databases. |
+| `JWT_SECRET` | Yes | Generate with `openssl rand -base64 48`. |
+| `YELP_API_KEY` | Yes | Required for live provider discovery. |
+| `OPENAI_API_KEY` | Yes | Required for AI triage and dispatch support. |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Yes | Required for client-side maps. |
+| `OPIK_API_KEY` | No | Optional observability integration. |
 
-1.  **Install Dependencies**:
-    ```bash
-    bun install
-    ```
+## Database Setup
 
-2.  **Database Migration**:
-    ```bash
-    bun run db:push
-    ```
+Create a Turso database and token before running production migrations.
 
-3.  **Start Dev Server**:
-    ```bash
-    bun run dev
-    ```
+```bash
+turso db create yuber-production
+turso db show yuber-production --url
+turso db tokens create yuber-production
+```
 
-## Verify
+After configuring the database URL and token, generate and apply migrations.
 
-- [ ] **Service Running**: Access [http://localhost:3000](http://localhost:3000)
-- [ ] **Health Check**: Verify app loads without crashing.
-- [ ] **Database**: Ensure data can be read/written (e.g., login or view providers).
+```bash
+bun run db:generate
+bun run db:migrate
+```
+
+For local demos, you can seed provider data after migrations.
+
+```bash
+bun scripts/seed-providers.mjs
+```
+
+## Local Development
+
+```bash
+bun run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Then verify the operational endpoint.
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+The endpoint may report `degraded` until production secrets and a reachable database are configured. That is expected for local UI work. Readiness mode is stricter and is intended for deployment gates.
+
+```bash
+curl -i "http://localhost:3000/api/health?ready=true"
+```
+
+## Docker Setup
+
+The Docker image is pinned to Bun `1.3.4`, builds Next.js standalone output, and includes a healthcheck that calls `/api/health`.
+
+```bash
+docker compose up --build
+```
+
+Run migrations in the container when the app service is running and environment variables are configured.
+
+```bash
+docker compose exec app bun run db:push
+```
+
+## Validation Before Pull Request
+
+Run the same command sequence locally that CI runs for review branches.
+
+```bash
+bun run ci
+```
+
+This command executes environment inventory, TypeScript typecheck, and the production build. A release candidate should additionally pass the strict environment check in the target deployment environment.
+
+```bash
+bun run validate:env:prod
+```
 
 ## Troubleshooting
 
-- **Database Connection Failed**:
-    - Verify `TURSO_DATABASE_URL` starts with `libsql://` (or `wss://` for client mode) and `TURSO_AUTH_TOKEN` is valid.
-    - Check if you are behind a firewall blocking WebSocket/HTTPs traffic to Turso.
-
-- **Port 3000 in Use**:
-    - Change the port in `docker-compose.yml` (`ports: "3001:3000"`) or `.env` (`PORT=3001`).
-
-- **Bun Not Found**:
-    - Ensure Bun is installed (see `https://bun.sh/`) or use the Docker option.
-
-- **Missing Environment Variables**:
-    - Double-check `.env` exists and is populated. Use `env.example` as the template.
+| Symptom | Likely Cause | Resolution |
+|---|---|---|
+| `TURSO_DATABASE_URL not set` appears during build | Database-backed features are not configured in local development. | Configure `.env.local` or ignore for UI-only local work. |
+| `/api/health?ready=true` returns `503` | Production env variables are missing or database ping failed. | Run `bun run validate:env:prod`, verify Turso credentials, and retry. |
+| Docker container starts but stays unhealthy | The app process or health endpoint is unreachable inside the container. | Inspect `docker compose logs app` and confirm `PORT=3000`. |
+| TypeScript fails after schema changes | Generated types or imports are stale. | Run `bun run db:generate`, review migration output, then run `bun run check`. |
+| CSP errors appear in the browser console | A production integration needs an explicit source in `next.config.mjs`. | Add the narrowest allowed domain and avoid wildcard expansion unless unavoidable. |
