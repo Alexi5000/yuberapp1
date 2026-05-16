@@ -1,6 +1,6 @@
 {
   "name": "yuber",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -8,7 +8,12 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit",
-    "db:push": "bunx drizzle-kit generate && bunx drizzle-kit migrate"
+    "validate:env": "tsx scripts/validate-env.ts",
+    "validate:env:prod": "NODE_ENV=production tsx scripts/validate-env.ts --strict",
+    "ci": "bun run validate:env && bun run check && bun run build",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
+    "db:push": "bun run db:generate && bun run db:migrate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.88",
