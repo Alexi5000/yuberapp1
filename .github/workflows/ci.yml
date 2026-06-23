@@ -1,12 +1,7 @@
 name: ci
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-      - master
-
+  workflow_dispatch:  # disabled on push/PR (experiment repo); run manually only
 jobs:
   typecheck:
     runs-on: ubuntu-latest
