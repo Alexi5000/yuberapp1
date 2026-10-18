@@ -62,7 +62,7 @@ Conversation/message access and booking reads/writes verify the authenticated ow
 
 The application regression uses a temporary migrated SQLite database, two independent users, and actual tRPC/HTTP handlers. It covers cross-account reads/writes, unauthorized side effects, cookie deletion, cross-origin rejection, forged legacy sessions and unsafe signing secrets.
 
-Remaining production work: verified identity integration, distributed rate limiting for paid search/AI endpoints, payment-provider integration, verified provider authorization and fulfillment, and a deployment-level review of secrets, redirects, CSP and upstream access controls. Experimental Mastra tool modules excluded from the live router remain simulations and must not be exposed as authenticated production operations without a separate security review. Dependency alerts and these application checks cannot establish an absence of all vulnerabilities.
+Remaining production work: verified identity integration, distributed rate limiting for paid search/AI endpoints, payment-provider integration, verified provider authorization and fulfillment, race-safe one-review-per-booking enforcement, and a deployment-level review of secrets, redirects, CSP and upstream access controls. Experimental Mastra tool modules excluded from the live router remain simulations and must not be exposed as authenticated production operations without a separate security review. Dependency alerts and these application checks cannot establish an absence of all vulnerabilities.
 
 ## Database Operations
 

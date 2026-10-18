@@ -56,6 +56,16 @@ try {
   const crossOrigin = await trpcPost(new NextRequest('https://example.test/api/trpc/auth.logout', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://attacker.test' }, body: '{}' }));
   assert.equal(crossOrigin.status, 403);
   assert.equal((await handleDemoLogin(req)).status, 403);
+  await db.$client.execute("INSERT INTO reviews (userId, providerId, bookingId, rating, tipAmount) VALUES (1, 1, 1, 5, 1234)");
+  const publicReviews = await caller(null).provider.getReviews({ providerId: 1 });
+  assert.equal(publicReviews.length, 1);
+  for (const field of ['userId', 'bookingId', 'tipAmount']) assert.equal(field in publicReviews[0]!, false);
+  const payment = await database.addPaymentMethod({ userId: owner.id, cardType: 'test', lastFour: '1234', expiryMonth: 1, expiryYear: 2030 });
+  const methods = await a.paymentMethod.list();
+  assert.equal(methods.length, 1);
+  await b.paymentMethod.delete({ id: methods[0]!.id });
+  assert.equal((await a.paymentMethod.list()).length, 1);
+  assert.equal((await b.paymentMethod.list()).length, 0);
   const key = new TextEncoder().encode(process.env.JWT_SECRET);
   const wrongApp = await new SignJWT({ openId: owner.openId, appId: 'other-app' }).setProtectedHeader({ alg: 'HS256' }).setExpirationTime('1h').sign(key);
   const noExpiry = await new SignJWT({ openId: owner.openId, appId: ENV.appId }).setProtectedHeader({ alg: 'HS256' }).sign(key);

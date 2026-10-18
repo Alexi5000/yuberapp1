@@ -381,7 +381,8 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
         return [];
       }
 
-      return db.getReviewsByProvider(input.providerId);
+      const reviews = await db.getReviewsByProvider(input.providerId);
+      return reviews.map(({ id, providerId, rating, comment, createdAt }) => ({ id, providerId, rating, comment, createdAt }));
     }),
 
     getYelpBusiness: publicProcedure.input(z.object({ yelpBusinessId: z.string() })).query(async ({ input }) => {
@@ -515,9 +516,9 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
       z.object({
         providerId: z.number(),
         bookingId: z.number(),
-        rating: z.number().min(1).max(5),
+        rating: z.number().int().min(1).max(5),
         comment: z.string().optional(),
-        tipAmount: z.number().optional()
+        tipAmount: z.number().int().nonnegative().optional()
       })
     ).mutation(async ({ ctx, input }) => {
       const booking = await ownedBooking(input.bookingId, ctx.user.id);
