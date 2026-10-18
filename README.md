@@ -11,7 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-1.3.4-f9f1e1?logo=bun)](https://bun.sh)
 [![tRPC](https://img.shields.io/badge/tRPC-11-2596be)](https://trpc.io)
 [![Drizzle](https://img.shields.io/badge/Drizzle-libSQL-c5f74f)](https://orm.drizzle.team)
@@ -55,7 +55,7 @@ Yuber’s AI layer is organized around specialized responsibilities rather than 
 
 ## Quick Start
 
-Yuber uses Bun as the package manager and runtime. The project is tested against Bun `1.3.4`, Node.js `22`, TypeScript `5.9`, and Next.js `16`.
+Yuber uses Bun as the package manager and runtime. The project is tested against Bun `1.3.4`, Node.js `22`, TypeScript `7.0`, and Next.js `16`.
 
 ```bash
 git clone https://github.com/Alexi5000/yuberapp1.git

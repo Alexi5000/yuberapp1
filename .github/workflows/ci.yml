@@ -73,6 +73,9 @@ jobs:
       - name: Vendor upgrade compatibility regressions
         run: bun run test:vendor-upgrades
 
+      - name: Component upgrade compatibility regressions
+        run: bun run test:components
+
       - name: Production build
         run: bun run build
 

@@ -23,7 +23,8 @@
     "test:math-tooling": "node scripts/test-math-tooling.mjs",
     "test:scoped-memory": "tsc --project tsconfig.memory.json && bun scripts/test-scoped-memory.ts",
     "test:mastra": "bun scripts/test-mastra.ts",
-    "test:vendor-upgrades": "bun scripts/test-vendor-upgrades.tsx"
+    "test:vendor-upgrades": "bun scripts/test-vendor-upgrades.tsx",
+    "test:components": "bun scripts/test-components.tsx"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.96",
