@@ -81,11 +81,11 @@ Before a production release, run the migration command against a staging Turso d
 
 | Area | Status After This Hardening Pass | Next Decision |
 |---|---|---|
-| Authentication | Cookie signing and demo/login routes exist; production secret validation is now explicit. | Confirm final OAuth provider and disable demo login in production if it should not be public. |
+| Authentication | Demo/email-only sign-in and local/demo sessions are blocked in production. | Integrate and verify a real identity provider before enabling customer accounts. |
 | Payments | Schema placeholders exist for saved cards and bookings. | Choose Stripe or another payment processor before collecting real payment data. |
 | Provider fulfillment | Yelp-backed discovery and seeded providers are present. | Decide whether the MVP uses affiliate leads, manual dispatch, or verified provider onboarding. |
 | Observability | Optional Opik configuration is modeled. | Add runtime trace capture and alert routing after production account selection. |
-| Testing | CI now runs env inventory, typecheck, and build. | Add unit/integration tests around auth, booking creation, and provider search once product flows are locked. |
+| Testing | CI runs typecheck, security/compatibility regressions, production build and an all-severity dependency audit on PRs, main pushes and daily. | Validate deployment secrets, real identity and provider integrations in staging; local tests do not establish deployed security. |
 
 ## Release Checklist
 
@@ -95,5 +95,5 @@ Before a production release, run the migration command against a staging Turso d
 | Database migrated | Backend owner | Migration log and healthy `/api/health?ready=true`. |
 | Build verified from clean install | Engineering | CI green on pull request. |
 | Security headers validated | Engineering | Browser smoke test and CSP console review. |
-| Demo/admin policy confirmed | Product owner | Written decision in release notes. |
+| Production identity verified | Release owner | Real identity-provider login and authorization tests pass; demo auth remains disabled. |
 | Rollback path documented | Release owner | Previous image or commit SHA available. |
