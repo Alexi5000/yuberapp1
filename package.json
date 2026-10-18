@@ -20,7 +20,8 @@
     "test:chart": "bun scripts/test-chart.tsx",
     "test:transport": "node scripts/test-download-transport.mjs",
     "test:telemetry": "node scripts/test-telemetry.mjs",
-    "test:math-tooling": "node scripts/test-math-tooling.mjs"
+    "test:math-tooling": "node scripts/test-math-tooling.mjs",
+    "test:scoped-memory": "tsc --project tsconfig.memory.json && bun scripts/test-scoped-memory.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.135",

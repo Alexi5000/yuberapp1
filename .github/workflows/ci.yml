@@ -41,3 +41,6 @@ jobs:
 
       - name: Math rendering and Drizzle toolchain regressions
         run: bun run test:math-tooling
+
+      - name: Scoped memory migration regressions
+        run: bun run test:scoped-memory
