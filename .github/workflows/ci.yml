@@ -26,3 +26,6 @@ jobs:
 
       - name: Database compatibility regressions
         run: bun run test:database
+
+      - name: Opik SDK compatibility regressions
+        run: bun run test:opik
