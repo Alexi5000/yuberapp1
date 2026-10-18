@@ -430,7 +430,7 @@ export async function executeEmergencyWorkflow(input: {
   logger.workflow.start("emergency-workflow", { userId: input.userId });
 
   try {
-    const run = await emergencyWorkflow.createRunAsync();
+    const run = await emergencyWorkflow.createRun();
 
     const result = await run.start({
       inputData: input,

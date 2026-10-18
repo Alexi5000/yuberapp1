@@ -11,6 +11,7 @@ import { updateSettingsTool } from "../tools/updateSettingsTool";
  * Requirements: Screen 29 (Notification Settings)
  */
 export const settingsAgent = new Agent({
+  id: "settingsAgent",
   name: "SettingsAgent",
   instructions: `You are a settings assistant for Yuber.
   
