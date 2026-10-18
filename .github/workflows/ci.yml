@@ -32,3 +32,6 @@ jobs:
 
       - name: Chart adapter compatibility regressions
         run: bun run test:chart
+
+      - name: Download transport and AI state security regressions
+        run: bun run test:transport
