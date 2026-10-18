@@ -409,14 +409,15 @@ export class OpikClient {
 
     await this.executeWithRetry(async () => {
       const trace = traceData.trace as {
-        end: (opts: unknown) => void;
+        update: (opts: unknown) => void;
+        end: () => void;
       };
 
       const endTime = new Date();
       const latencyMs = output.latencyMs ?? (endTime.getTime() - traceData.startTime.getTime());
 
       // End trace and send to Opik server
-      trace.end({
+      trace.update({
         output: output.output,
         metadata: {
           status: output.status,
@@ -429,6 +430,7 @@ export class OpikClient {
         },
       });
 
+      trace.end();
       this.activeTraces.delete(traceId);
     }, "endTrace");
   }
@@ -445,14 +447,15 @@ export class OpikClient {
 
     await this.executeWithRetry(async () => {
       const span = spanData.span as {
-        end: (opts: unknown) => void;
+        update: (opts: unknown) => void;
+        end: () => void;
       };
 
       const endTime = new Date();
       const durationMs = output.durationMs ?? (endTime.getTime() - spanData.startTime.getTime());
 
       // End span and send to Opik server
-      span.end({
+      span.update({
         output: output.output,
         metadata: {
           status: output.status,
@@ -463,6 +466,7 @@ export class OpikClient {
         },
       });
 
+      span.end();
       this.activeSpans.delete(spanId);
     }, "endSpan");
   }
