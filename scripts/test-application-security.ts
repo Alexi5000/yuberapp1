@@ -1,0 +1,86 @@
+import assert from 'node:assert/strict';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { NextRequest } from 'next/server';
+import { SignJWT } from 'jose';
+
+for (const name of Object.keys(process.env)) {
+  if (!['PATH', 'HOME', 'TMPDIR'].includes(name)) delete process.env[name];
+}
+const directory = await mkdtemp(join(tmpdir(), 'yuber-security-'));
+process.env.TURSO_DATABASE_URL = `file:${join(directory, 'test.db')}`;
+process.env.JWT_SECRET = 'offline-application-security-secret-only';
+process.env.NODE_ENV = 'test';
+globalThis.fetch = async () => { throw new Error('Network disabled in application security regression'); };
+const { migrate } = await import('drizzle-orm/libsql/migrator');
+const database = await import('../server/db');
+const { appRouter } = await import('../server/routers');
+const { localAuth } = await import('../server/_core/localAuth');
+const { handleEmailLogin, handleDemoLogin } = await import('../server/_core/oauth');
+const { getSessionCookieOptions } = await import('../server/_core/cookies');
+const { ENV } = await import('../server/_core/env');
+const db = await database.getDb();
+assert.ok(db);
+try {
+  await migrate(db, { migrationsFolder: join(import.meta.dir, '../drizzle') });
+  await database.upsertUser({ openId: 'owner-test', name: 'Owner' });
+  await database.upsertUser({ openId: 'other-test', name: 'Other' });
+  const owner = (await database.getUserByOpenId('owner-test'))!;
+  const other = (await database.getUserByOpenId('other-test'))!;
+  const req = new NextRequest('https://example.test/api/trpc');
+  const caller = (user: typeof owner | null) => appRouter.createCaller({ req, user, responseHeaders: new Headers() });
+  const a = caller(owner);
+  const b = caller(other);
+  const conversation = (await database.createConversation(owner.id, 'Private'))!;
+  await database.addMessage({ conversationId: conversation.id, role: 'user', content: 'Private location' });
+  const booking = (await database.createBooking({ userId: owner.id, providerId: 1, serviceType: 'plumbing', status: 'confirmed' }))!;
+  const missing = { code: 'NOT_FOUND' };
+  await assert.rejects(b.conversation.get({ id: conversation.id }), missing);
+  await assert.rejects(b.conversation.getMessages({ conversationId: conversation.id }), missing);
+  await assert.rejects(b.conversation.sendMessage({ conversationId: conversation.id, content: 'Injected' }), missing);
+  await assert.rejects(b.booking.get({ id: booking.id }), missing);
+  await assert.rejects(b.booking.updateStatus({ id: booking.id, status: 'completed' }), missing);
+  await assert.rejects(b.booking.updateProviderLocation({ id: booking.id, lat: '1', lng: '2', eta: 1 }), missing);
+  await assert.rejects(b.booking.create({ providerId: 1, serviceType: 'plumbing', conversationId: conversation.id }), missing);
+  await assert.rejects(b.review.create({ bookingId: booking.id, providerId: 1, rating: 5 }), missing);
+  await assert.rejects(a.review.create({ bookingId: booking.id, providerId: 2, rating: 5 }), { code: 'BAD_REQUEST' });
+  await assert.rejects(caller(null).booking.get({ id: booking.id }), { code: 'UNAUTHORIZED' });
+  assert.equal((await a.conversation.get({ id: conversation.id })).userId, owner.id);
+  assert.equal((await a.conversation.getMessages({ conversationId: conversation.id })).length, 1);
+  assert.equal((await a.booking.get({ id: booking.id })).status, 'confirmed');
+  const { POST: trpcPost } = await import('../app/api/trpc/[trpc]/route');
+  const logout = await trpcPost(new NextRequest('https://example.test/api/trpc/auth.logout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }));
+  assert.equal(logout.status, 200);
+  assert.match(logout.headers.get('set-cookie') ?? '', /Max-Age=0/);
+  const crossOrigin = await trpcPost(new NextRequest('https://example.test/api/trpc/auth.logout', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://attacker.test' }, body: '{}' }));
+  assert.equal(crossOrigin.status, 403);
+  assert.equal((await handleDemoLogin(req)).status, 403);
+  const key = new TextEncoder().encode(process.env.JWT_SECRET);
+  const wrongApp = await new SignJWT({ openId: owner.openId, appId: 'other-app' }).setProtectedHeader({ alg: 'HS256' }).setExpirationTime('1h').sign(key);
+  const noExpiry = await new SignJWT({ openId: owner.openId, appId: ENV.appId }).setProtectedHeader({ alg: 'HS256' }).sign(key);
+  assert.equal(await localAuth.verifySession(wrongApp), null);
+  assert.equal(await localAuth.verifySession(noExpiry), null);
+  const demoToken = await localAuth.createSessionToken('demo-user-local');
+  const emailToken = await localAuth.createSessionToken('local-victim');
+  process.env.ENABLE_LOCAL_DEMO_AUTH = 'true';
+  process.env.NODE_ENV = 'production';
+  assert.equal((await handleEmailLogin(new NextRequest('https://example.test/api/auth/login', { method: 'POST', body: '{"email":"victim@example.test"}' }))).status, 403);
+  assert.equal((await handleDemoLogin(new NextRequest('http://localhost/api/auth/demo-login'))).status, 403);
+  assert.equal(await localAuth.verifySession(demoToken), null);
+  assert.equal(await localAuth.verifySession(emailToken), null);
+  assert.equal(getSessionCookieOptions(req).sameSite, 'lax');
+  assert.equal(getSessionCookieOptions(new NextRequest('http://example.test')).secure, true);
+  await assert.rejects(a.booking.updateStatus({ id: booking.id, status: 'completed' }), { code: 'FORBIDDEN' });
+  await assert.rejects(a.booking.updateProviderLocation({ id: booking.id, lat: '1', lng: '2', eta: 1 }), { code: 'FORBIDDEN' });
+  await a.booking.updateStatus({ id: booking.id, status: 'cancelled' });
+  assert.equal((await a.booking.get({ id: booking.id })).status, 'cancelled');
+  for (const secret of ['', 'short', 'change-this-secret-in-production', 'default-dev-secret-change-me']) {
+    ENV.cookieSecret = secret;
+    await assert.rejects(localAuth.createSessionToken(owner.openId), /JWT_SECRET/);
+  }
+  console.log('PASS: production auth denial, default-secret rejection, session claims, cross-user reads/writes, no mutation side effects, customer dispatch restrictions, owner access and cancellation');
+} finally {
+  db.$client.close();
+  await rm(directory, { recursive: true, force: true });
+}

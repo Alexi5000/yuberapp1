@@ -9,7 +9,16 @@ import { type TrpcContext } from './context';
 const t = initTRPC.context<TrpcContext>().create();
 
 export const router = t.router;
-export const publicProcedure = t.procedure;
+const safeProcedure = t.procedure.use(async ({ ctx, type, next }) => {
+  if (type === 'mutation') {
+    const origin = ctx.req.headers.get('origin');
+    if ((origin && origin !== ctx.req.nextUrl.origin) || ctx.req.headers.get('sec-fetch-site') === 'cross-site') {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'Cross-origin mutations are not allowed' });
+    }
+  }
+  return next();
+});
+export const publicProcedure = safeProcedure;
 
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
@@ -21,9 +30,9 @@ const requireUser = t.middleware(async opts => {
   return next({ ctx: { ...ctx, user: ctx.user } });
 });
 
-export const protectedProcedure = t.procedure.use(requireUser);
+export const protectedProcedure = safeProcedure.use(requireUser);
 
-export const adminProcedure = t.procedure.use(t.middleware(async opts => {
+export const adminProcedure = safeProcedure.use(t.middleware(async opts => {
   const { ctx, next } = opts;
 
   if (!ctx.user || ctx.user.role !== 'admin') {

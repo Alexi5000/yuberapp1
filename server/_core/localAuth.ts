@@ -31,10 +31,10 @@ class LocalAuthService {
 
   private getSessionSecret() {
     const secret = ENV.cookieSecret;
-    if (!secret || secret === 'change-this-secret-in-production') {
-      console.warn('[Auth] WARNING: Using default JWT secret. Set JWT_SECRET in .env for production!');
+    if (!secret || secret.length < 32 || secret === 'change-this-secret-in-production' || secret === 'default-dev-secret-change-me') {
+      throw new Error('JWT_SECRET must be a non-placeholder secret of at least 32 characters');
     }
-    return new TextEncoder().encode(secret || 'default-dev-secret-change-me');
+    return new TextEncoder().encode(secret);
   }
 
   /**
@@ -63,10 +63,10 @@ class LocalAuthService {
 
     try {
       const secretKey = this.getSessionSecret();
-      const { payload } = await jwtVerify(cookieValue, secretKey, { algorithms: ['HS256'] });
+      const { payload } = await jwtVerify(cookieValue, secretKey, { algorithms: ['HS256'], requiredClaims: ['exp'] });
       const { openId, appId, name } = payload as Record<string, unknown>;
 
-      if (!isNonEmptyString(openId)) {
+      if (!isNonEmptyString(openId) || appId !== ENV.appId || (process.env.NODE_ENV === 'production' && (openId.startsWith('local-') || openId === 'demo-user-local'))) {
         console.warn('[Auth] Session payload missing openId');
         return null;
       }

@@ -3,6 +3,7 @@
 // reference: server/_core/trpc.ts, server/_core/cookies.ts
 import { COOKIE_NAME } from '@shared/const';
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import { getSessionCookieOptions } from './_core/cookies';
 import { invokeLLM, searchProvidersWithLogging } from './_core/llm';
 import { systemRouter } from './_core/systemRouter';
@@ -10,6 +11,18 @@ import { protectedProcedure, publicProcedure, router } from './_core/trpc';
 import { agentRouter } from './routers/agent';
 import { getYelpBusinessDetails, getYelpBusinessReviews, searchYelpBusinesses, type YelpRestBusiness } from './_core/yelp_rest_search';
 import * as db from './db';
+
+async function ownedConversation(id: number, userId: number) {
+  const conversation = await db.getConversationById(id);
+  if (!conversation || conversation.userId !== userId) throw new TRPCError({ code: 'NOT_FOUND' });
+  return conversation;
+}
+
+async function ownedBooking(id: number, userId: number) {
+  const booking = await db.getBookingById(id);
+  if (!booking || booking.userId !== userId) throw new TRPCError({ code: 'NOT_FOUND' });
+  return booking;
+}
 
 const DEFAULT_SEARCH_LOCATION = { latitude: 39.9612, longitude: -83.1259 }; // Columbus, OH
 const DEFAULT_AVAILABLE_MINUTES = 10;
@@ -127,16 +140,18 @@ export const appRouter = router({
       return db.getConversationsByUser(ctx.user.id);
     }),
 
-    get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-      return db.getConversationById(input.id);
+    get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
+      return ownedConversation(input.id, ctx.user.id);
     }),
 
-    getMessages: protectedProcedure.input(z.object({ conversationId: z.number() })).query(async ({ input }) => {
+    getMessages: protectedProcedure.input(z.object({ conversationId: z.number() })).query(async ({ ctx, input }) => {
+      await ownedConversation(input.conversationId, ctx.user.id);
       return db.getMessagesByConversation(input.conversationId);
     }),
 
     sendMessage: protectedProcedure.input(z.object({ conversationId: z.number(), content: z.string() })).mutation(
       async ({ ctx, input }) => {
+        await ownedConversation(input.conversationId, ctx.user.id);
         // Save user message
         await db.addMessage({ conversationId: input.conversationId, role: 'user', content: input.content, messageType: 'text' });
 
@@ -444,6 +459,7 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
         conversationId: z.number().optional()
       })
     ).mutation(async ({ ctx, input }) => {
+      if (input.conversationId !== undefined) await ownedConversation(input.conversationId, ctx.user.id);
       return db.createBooking({
         userId: ctx.user.id,
         providerId: input.providerId,
@@ -456,8 +472,8 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
         estimatedCostMin: input.estimatedCostMin,
         estimatedCostMax: input.estimatedCostMax,
         conversationId: input.conversationId,
-        status: 'confirmed',
-        providerEta: Math.floor(Math.random() * 15) + 5 // 5-20 min ETA for demo
+        status: process.env.NODE_ENV === 'production' ? 'pending' : 'confirmed',
+        providerEta: process.env.NODE_ENV === 'production' ? null : Math.floor(Math.random() * 15) + 5
       });
     }),
 
@@ -465,13 +481,15 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
       return db.getBookingsByUser(ctx.user.id);
     }),
 
-    get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-      return db.getBookingById(input.id);
+    get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
+      return ownedBooking(input.id, ctx.user.id);
     }),
 
     updateStatus: protectedProcedure.input(
       z.object({ id: z.number(), status: z.enum(['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']) })
-    ).mutation(async ({ input }) => {
+    ).mutation(async ({ ctx, input }) => {
+      const booking = await ownedBooking(input.id, ctx.user.id);
+      if (process.env.NODE_ENV === 'production' && ctx.user.role !== 'admin' && (input.status !== 'cancelled' || !['pending', 'confirmed'].includes(booking.status))) throw new TRPCError({ code: 'FORBIDDEN' });
       const updateData: Record<string, unknown> = { status: input.status };
       if (input.status === 'in_progress') {
         updateData.startedAt = new Date();
@@ -483,7 +501,9 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
     }),
 
     updateProviderLocation: protectedProcedure.input(z.object({ id: z.number(), lat: z.string(), lng: z.string(), eta: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        await ownedBooking(input.id, ctx.user.id);
+        if (process.env.NODE_ENV === 'production' && ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
         await db.updateBooking(input.id, { providerLat: input.lat, providerLng: input.lng, providerEta: input.eta });
         return { success: true };
       })
@@ -500,6 +520,8 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
         tipAmount: z.number().optional()
       })
     ).mutation(async ({ ctx, input }) => {
+      const booking = await ownedBooking(input.bookingId, ctx.user.id);
+      if (booking.providerId !== input.providerId || booking.status !== 'completed') throw new TRPCError({ code: 'BAD_REQUEST', message: 'Review requires a completed booking for this provider' });
       return db.createReview({
         userId: ctx.user.id,
         providerId: input.providerId,

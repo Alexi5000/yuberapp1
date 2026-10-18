@@ -16,12 +16,13 @@ Yuber is now organized as a full-stack Next.js application with a typed React in
 
 ## Required Release Gate
 
-The repository should be considered deployable when the following command sequence passes in a clean environment.
+The following checks are necessary but not sufficient for production release. Verified production authentication is not implemented: demo/email-only login requires ENABLE_LOCAL_DEMO_AUTH=true and is restricted to localhost development/test requests, and production rejects all existing local/demo sessions. Do not enable public customer accounts until a real identity provider is integrated and tested.
 
 ```bash
 bun install --frozen-lockfile
 bun run validate:env:prod
 bun run check
+bun scripts/test-application-security.ts
 bun run build
 ```
 
@@ -52,6 +53,16 @@ The application exposes two operational modes from the same endpoint. `GET /api/
 ## Security Baseline
 
 The Next.js configuration now applies baseline HTTP response headers for frame prevention, MIME sniffing protection, referrer control, permissions policy, and content security policy. These headers should be validated in staging because production providers, image domains, and map integrations may require deliberate CSP expansion. The application should not add broad wildcard sources unless a live integration proves it is necessary.
+
+### Application security closeout
+
+Session issuance requires a non-placeholder JWT secret of at least 32 characters. Sessions must expire and match the configured application; production rejects local/demo identities. Rotate the deployed JWT secret to revoke previously issued sessions. Cookies use HttpOnly, SameSite=Lax and Secure in production. Mutations reject cross-origin browser requests, and logout now propagates the deletion cookie through the tRPC HTTP adapter.
+
+Conversation/message access and booking reads/writes verify the authenticated owner's identity before data access or changes. Linked conversations and reviews must belong to the caller; reviews must match a completed booking and its provider. In production, customers can cancel pending/confirmed bookings but cannot complete jobs or write provider coordinates. New production bookings remain pending without invented dispatch ETAs.
+
+The application regression uses a temporary migrated SQLite database, two independent users, and actual tRPC/HTTP handlers. It covers cross-account reads/writes, unauthorized side effects, cookie deletion, cross-origin rejection, forged legacy sessions and unsafe signing secrets.
+
+Remaining production work: verified identity integration, distributed rate limiting for paid search/AI endpoints, payment-provider integration, verified provider authorization and fulfillment, and a deployment-level review of secrets, redirects, CSP and upstream access controls. Experimental Mastra tool modules excluded from the live router remain simulations and must not be exposed as authenticated production operations without a separate security review. Dependency alerts and these application checks cannot establish an absence of all vulnerabilities.
 
 ## Database Operations
 

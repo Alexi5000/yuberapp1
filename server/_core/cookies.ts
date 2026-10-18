@@ -15,5 +15,5 @@ function isSecureRequest(req: NextRequest) {
 type SessionCookieOptions = { httpOnly: boolean, path: string, sameSite: 'none' | 'lax' | 'strict', secure: boolean };
 
 export function getSessionCookieOptions(req: NextRequest): SessionCookieOptions {
-  return { httpOnly: true, path: '/', sameSite: 'none', secure: isSecureRequest(req) };
+  return { httpOnly: true, path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' || isSecureRequest(req) };
 }

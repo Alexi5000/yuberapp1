@@ -73,7 +73,7 @@ export function getEnvironmentStatus() {
       name: 'JWT_SECRET',
       description: 'High-entropy signing secret for HTTP-only session cookies.',
       productionRequired: true,
-      configured: Boolean(ENV.cookieSecret && ENV.cookieSecret !== 'change-this-secret-in-production')
+      configured: Boolean(ENV.cookieSecret.length >= 32 && ENV.cookieSecret !== 'change-this-secret-in-production' && ENV.cookieSecret !== 'default-dev-secret-change-me')
     },
     {
       name: 'YELP_API_KEY',
