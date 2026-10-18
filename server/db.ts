@@ -311,7 +311,11 @@ export async function updateBooking(id: number, data: Partial<InsertBooking>) {
 export async function createReview(data: InsertReview) {
   const db = await getDb();
   if (!db) return undefined;
-  await db.insert(reviews).values(data);
+  const inserted = await db.$client.execute({
+    sql: 'INSERT INTO reviews (userId, providerId, bookingId, rating, comment, tipAmount) SELECT ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM reviews WHERE bookingId = ?)',
+    args: [data.userId, data.providerId, data.bookingId, data.rating, data.comment ?? null, data.tipAmount ?? 0, data.bookingId]
+  });
+  if (inserted.rowsAffected === 0) return undefined;
   // Update provider rating
   const providerReviews = await db.select().from(reviews).where(eq(reviews.providerId, data.providerId));
   const avgRating = Math.round(providerReviews.reduce((sum, r) => sum + r.rating, 0) / providerReviews.length * 10);

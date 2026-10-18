@@ -97,10 +97,10 @@ export async function searchYelpBusinesses(
 }
 
 export async function getYelpBusinessDetails(id: string): Promise<YelpRestBusinessDetails> {
-  return callYelpApi<YelpRestBusinessDetails>(`businesses/${id}`);
+  return callYelpApi<YelpRestBusinessDetails>(`businesses/${encodeURIComponent(id)}`);
 }
 
 export async function getYelpBusinessReviews(id: string): Promise<YelpRestReview[]> {
-  const data = await callYelpApi<{ reviews?: YelpRestReview[] }>(`businesses/${id}/reviews`);
+  const data = await callYelpApi<{ reviews?: YelpRestReview[] }>(`businesses/${encodeURIComponent(id)}/reviews`);
   return data.reviews ?? [];
 }

@@ -24,6 +24,10 @@ async function ownedBooking(id: number, userId: number) {
   return booking;
 }
 
+function requireExternalAccess(user: unknown) {
+  if (process.env.NODE_ENV === 'production' && !user) throw new TRPCError({ code: 'UNAUTHORIZED' });
+}
+
 const DEFAULT_SEARCH_LOCATION = { latitude: 39.9612, longitude: -83.1259 }; // Columbus, OH
 const DEFAULT_AVAILABLE_MINUTES = 10;
 const YELP_TIMEOUT_MS = 3000;
@@ -219,6 +223,7 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
 
     search: publicProcedure.input(z.object({ query: z.string(), location: z.object({ lat: z.number(), lng: z.number() }).optional() }))
       .query(async ({ input, ctx }) => {
+        requireExternalAccess(ctx.user);
         const location = input.location ? { latitude: input.location.lat, longitude: input.location.lng } : DEFAULT_SEARCH_LOCATION;
 
         const normalizedQuery = normalizeServiceQuery(input.query);
@@ -357,10 +362,11 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
     getReviews: publicProcedure.input(
       z.object({
         providerId: z.number().optional(),
-        yelpBusinessId: z.string().optional()
+        yelpBusinessId: z.string().max(256).regex(/^[A-Za-z0-9_-]+$/).optional()
       }).refine((value) => Boolean(value.providerId) || Boolean(value.yelpBusinessId), { message: 'providerId or yelpBusinessId is required' })
-    ).query(async ({ input }) => {
+    ).query(async ({ input, ctx }) => {
       if (input.yelpBusinessId) {
+        requireExternalAccess(ctx.user);
         try {
           const yelpReviews = await getYelpBusinessReviews(input.yelpBusinessId);
           return yelpReviews.map(review => ({
@@ -385,7 +391,8 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
       return reviews.map(({ id, providerId, rating, comment, createdAt }) => ({ id, providerId, rating, comment, createdAt }));
     }),
 
-    getYelpBusiness: publicProcedure.input(z.object({ yelpBusinessId: z.string() })).query(async ({ input }) => {
+    getYelpBusiness: publicProcedure.input(z.object({ yelpBusinessId: z.string().max(256).regex(/^[A-Za-z0-9_-]+$/) })).query(async ({ input, ctx }) => {
+      requireExternalAccess(ctx.user);
       try {
         const business = await getYelpBusinessDetails(input.yelpBusinessId);
         return {
@@ -523,7 +530,7 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
     ).mutation(async ({ ctx, input }) => {
       const booking = await ownedBooking(input.bookingId, ctx.user.id);
       if (booking.providerId !== input.providerId || booking.status !== 'completed') throw new TRPCError({ code: 'BAD_REQUEST', message: 'Review requires a completed booking for this provider' });
-      return db.createReview({
+      const review = await db.createReview({
         userId: ctx.user.id,
         providerId: input.providerId,
         bookingId: input.bookingId,
@@ -531,6 +538,8 @@ Keep responses concise and conversational. Use emojis sparingly for warmth.`;
         comment: input.comment,
         tipAmount: input.tipAmount
       });
+      if (!review) throw new TRPCError({ code: 'CONFLICT', message: 'A review already exists for this booking' });
+      return review;
     })
   }),
 
