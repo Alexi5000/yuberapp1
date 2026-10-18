@@ -38,3 +38,6 @@ jobs:
 
       - name: Mastra telemetry security regressions
         run: bun run test:telemetry
+
+      - name: Math rendering and Drizzle toolchain regressions
+        run: bun run test:math-tooling

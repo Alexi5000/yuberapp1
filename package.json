@@ -19,7 +19,8 @@
     "test:opik": "bun scripts/test-opik.ts",
     "test:chart": "bun scripts/test-chart.tsx",
     "test:transport": "node scripts/test-download-transport.mjs",
-    "test:telemetry": "node scripts/test-telemetry.mjs"
+    "test:telemetry": "node scripts/test-telemetry.mjs",
+    "test:math-tooling": "node scripts/test-math-tooling.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.135",
@@ -114,6 +115,8 @@
     "@opentelemetry/exporter-trace-otlp-http": "0.223.0",
     "@opentelemetry/otlp-exporter-base": "0.223.0",
     "@opentelemetry/otlp-transformer": "0.223.0",
-    "@opentelemetry/auto-instrumentations-node": "0.81.2"
+    "@opentelemetry/auto-instrumentations-node": "0.81.2",
+    "esbuild": "0.28.2",
+    "katex": "0.18.3"
   }
 }
