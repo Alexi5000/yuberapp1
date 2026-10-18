@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "server/mastra/memory/scoped_conversation_memory.ts",
+    "scripts/test-scoped-memory.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "incremental": false
+  }
+}
