@@ -64,6 +64,12 @@ jobs:
       - name: Scoped memory migration regressions
         run: bun run test:scoped-memory
 
+      - name: Mastra provider and workflow compatibility
+        run: bun run test:mastra
+
+      - name: Application authorization and authentication regressions
+        run: bun scripts/test-application-security.ts
+
       - name: Production build
         run: bun run build
 
