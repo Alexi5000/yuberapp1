@@ -19,6 +19,7 @@ import { wrapAgent, type TraceWrapperMetadata, type TracedResult, type AgentExec
  * Requirements: 4.1
  */
 export const dispatchAgent = new Agent({
+  id: "dispatchAgent",
   name: "DispatchAgent",
   instructions: `You are a dispatch coordinator for Yuber, an on-demand local services marketplace.
 

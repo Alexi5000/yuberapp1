@@ -34,14 +34,5 @@ try {
   await new Promise(resolve => server.close(resolve));
 }
 
-const { diff, clone, patch } = await import('jsondiffpatch');
-const initialState = { user: { name: 'Alex' }, jobs: [{ id: 1, done: false }] };
-const nextState = { user: { name: 'Alex' }, jobs: [{ id: 1, done: true }, { id: 2, done: false }] };
-assert.deepEqual(patch(clone(initialState), diff(initialState, nextState)), nextState);
-assert.equal(initialState.jobs[0].done, false);
-const target = {};
-patch(target, JSON.parse('{"__proto__":[{"polluted":true}]}'));
-assert.equal(Object.getPrototypeOf(target), Object.prototype);
-assert.equal(target.polluted, undefined);
-assert.equal({}.polluted, undefined);
-console.log('AI state diff/clone/patch compatibility and prototype guard pass');
+assert.throws(() => require.resolve('jsondiffpatch'), { code: 'MODULE_NOT_FOUND' });
+console.log('Removed legacy AI state diff dependency is absent');

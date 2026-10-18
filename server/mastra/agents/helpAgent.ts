@@ -17,6 +17,7 @@ import { openai } from "@ai-sdk/openai";
  * Requirements: 1.1, 1.2, 1.3
  */
 export const helpAgent = new Agent({
+  id: "helpAgent",
   name: "HelpAgent",
   instructions: `You are a helpful services assistant for Yuber, an on-demand local services marketplace.
 
