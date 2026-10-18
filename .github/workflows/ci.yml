@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   typecheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -70,11 +70,17 @@ jobs:
       - name: Application authorization and authentication regressions
         run: bun scripts/test-application-security.ts
 
+      - name: Vendor upgrade compatibility regressions
+        run: bun run test:vendor-upgrades
+
+      - name: Component upgrade compatibility regressions
+        run: bun run test:components
+
       - name: Production build
         run: bun run build
 
   dependency-audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

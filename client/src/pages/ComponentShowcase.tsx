@@ -971,14 +971,14 @@ export default function ComponentsShowcase() {
             <h3 className='text-2xl font-semibold'>Resizable Panels</h3>
             <Card>
               <CardContent className='pt-6'>
-                <ResizablePanelGroup direction='horizontal' className='min-h-50 rounded-lg border'>
-                  <ResizablePanel defaultSize={50}>
+                <ResizablePanelGroup orientation='horizontal' className='min-h-50 rounded-lg border'>
+                  <ResizablePanel defaultSize="50%">
                     <div className='flex h-full items-center justify-center p-6'>
                       <span className='font-semibold'>Panel One</span>
                     </div>
                   </ResizablePanel>
                   <ResizableHandle />
-                  <ResizablePanel defaultSize={50}>
+                  <ResizablePanel defaultSize="50%">
                     <div className='flex h-full items-center justify-center p-6'>
                       <span className='font-semibold'>Panel Two</span>
                     </div>

@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Loader2, Send, Sparkles, User } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Streamdown } from 'streamdown';
+import { Streamdown } from '@/components/ui/streamdown';
 
 /**
  * Message type matching server-side LLM Message interface

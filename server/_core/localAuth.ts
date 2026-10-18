@@ -3,7 +3,7 @@
 // reference: server/_core/cookies.ts, server/db.ts
 import { ForbiddenError } from '@shared/_core/errors';
 import { COOKIE_NAME, ONE_YEAR_MS } from '@shared/const';
-import { parse as parseCookieHeader } from 'cookie';
+import { parseCookie as parseCookieHeader } from 'cookie';
 import { jwtVerify, SignJWT } from 'jose';
 import { type NextRequest } from 'next/server';
 import { type User } from '../../drizzle/schema';
