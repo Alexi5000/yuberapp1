@@ -10,6 +10,9 @@ import { getSessionCookieOptions } from './cookies';
 import { localAuth } from './localAuth';
 
 export async function handleDemoLogin(req: NextRequest) {
+  if (process.env.ENABLE_LOCAL_DEMO_AUTH !== 'true' || !['development', 'test'].includes(process.env.NODE_ENV ?? '') || !['localhost', '127.0.0.1', '[::1]'].includes(req.nextUrl.hostname)) {
+    return NextResponse.json({ error: 'Demo authentication is disabled. A verified identity provider is required.' }, { status: 403 });
+  }
   try {
     const user = await localAuth.getOrCreateDemoUser();
     const sessionToken = await localAuth.createSessionToken(user.openId, { name: user.name || 'Demo User', expiresInMs: ONE_YEAR_MS });
@@ -24,14 +27,17 @@ export async function handleDemoLogin(req: NextRequest) {
 }
 
 export async function handleEmailLogin(req: NextRequest) {
+  if (process.env.ENABLE_LOCAL_DEMO_AUTH !== 'true' || !['development', 'test'].includes(process.env.NODE_ENV ?? '') || !['localhost', '127.0.0.1', '[::1]'].includes(req.nextUrl.hostname)) {
+    return NextResponse.json({ error: 'Demo authentication is disabled. A verified identity provider is required.' }, { status: 403 });
+  }
   try {
     const { email, name } = await req.json();
 
-    if (!email) {
+    if (typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || (name !== undefined && (typeof name !== 'string' || name.length > 100))) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    const openId = `local-${email.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    const openId = `local-${Buffer.from(email.trim().toLowerCase()).toString('base64url')}`;
     await db.upsertUser({ openId, name: name || email.split('@')[0], email, loginMethod: 'email', lastSignedIn: new Date() });
 
     const user = await db.getUserByOpenId(openId);

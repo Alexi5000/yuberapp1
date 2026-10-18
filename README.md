@@ -156,7 +156,7 @@ yuberapp1/
 
 | Priority | Workstream | Rationale |
 |---|---|---|
-| P0 | Confirm production authentication policy and whether demo login is disabled outside development. | Prevents unintended public access and clarifies owner/admin flows. |
+| P0 | Integrate verified production authentication; demo/email-only login is restricted to localhost development/test. | Prevents unintended public access and clarifies owner/admin flows. |
 | P0 | Configure Turso, Yelp, OpenAI, Google Maps, and JWT secrets in the deployment platform. | Required for the strict production readiness gate. |
 | P1 | Add integration tests for login, provider search, booking creation, and readiness checks. | Converts the current build gate into behavior-level confidence. |
 | P1 | Choose fulfillment strategy: affiliate lead routing, manual dispatch, or verified provider onboarding. | Determines whether dispatch remains simulated or becomes transactional. |

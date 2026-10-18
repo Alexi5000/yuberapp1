@@ -34,7 +34,7 @@ async function checkDatabase() {
       name: 'database',
       status: 'down' as const,
       latencyMs: Date.now() - startedAt,
-      message: error instanceof Error ? error.message : 'Unknown database error.'
+      message: 'Database connection failed.'
     };
   }
 }
