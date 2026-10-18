@@ -16,7 +16,8 @@
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bunx drizzle-kit migrate",
     "db:push": "bun run db:generate && bun run db:migrate",
-    "test:opik": "bun scripts/test-opik.ts"
+    "test:opik": "bun scripts/test-opik.ts",
+    "test:chart": "bun scripts/test-chart.tsx"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.135",
@@ -73,7 +74,7 @@
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.90.0",
     "react-resizable-panels": "^3.0.6",
-    "recharts": "^2.15.4",
+    "recharts": "^3.9.0",
     "simple-icons": "^16.35.0",
     "sonner": "^2.0.8",
     "streamdown": "^1.6.11",
