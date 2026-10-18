@@ -23,3 +23,6 @@ jobs:
 
       - name: Session authentication regressions
         run: bun run test:session
+
+      - name: Database compatibility regressions
+        run: bun run test:database
