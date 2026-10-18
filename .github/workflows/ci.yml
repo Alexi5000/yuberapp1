@@ -70,6 +70,9 @@ jobs:
       - name: Application authorization and authentication regressions
         run: bun scripts/test-application-security.ts
 
+      - name: Vendor upgrade compatibility regressions
+        run: bun run test:vendor-upgrades
+
       - name: Production build
         run: bun run build
 
