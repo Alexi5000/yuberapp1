@@ -18,7 +18,8 @@
     "db:push": "bun run db:generate && bun run db:migrate",
     "test:opik": "bun scripts/test-opik.ts",
     "test:chart": "bun scripts/test-chart.tsx",
-    "test:transport": "node scripts/test-download-transport.mjs"
+    "test:transport": "node scripts/test-download-transport.mjs",
+    "test:telemetry": "node scripts/test-telemetry.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.135",
@@ -107,6 +108,12 @@
   "overrides": {
     "postcss-selector-parser": "^7.1.6",
     "undici": "^6.29.1",
-    "jsondiffpatch": "^0.7.6"
+    "jsondiffpatch": "^0.7.6",
+    "@opentelemetry/sdk-node": "0.223.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "0.223.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.223.0",
+    "@opentelemetry/otlp-exporter-base": "0.223.0",
+    "@opentelemetry/otlp-transformer": "0.223.0",
+    "@opentelemetry/auto-instrumentations-node": "0.81.2"
   }
 }
