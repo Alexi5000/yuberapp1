@@ -35,3 +35,6 @@ jobs:
 
       - name: Download transport and AI state security regressions
         run: bun run test:transport
+
+      - name: Mastra telemetry security regressions
+        run: bun run test:telemetry
