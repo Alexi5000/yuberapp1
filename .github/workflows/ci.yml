@@ -29,3 +29,6 @@ jobs:
 
       - name: Opik SDK compatibility regressions
         run: bun run test:opik
+
+      - name: Chart adapter compatibility regressions
+        run: bun run test:chart
