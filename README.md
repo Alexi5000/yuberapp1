@@ -26,6 +26,21 @@
 
 ---
 
+## Why this exists
+
+**What it does.** Yuber is a Next.js 16 application that takes a plain-English description of a home emergency, classifies it with Mastra-based agents, searches Yelp Fusion for nearby providers, and records a booking that the user can track in a phone-style browser UI. Persistence is Drizzle ORM on Turso/libSQL, the API is tRPC 11, and the app ships with a Docker image, Railway config, and a CI regression suite.
+
+**Who it serves.** A homeowner or renter who needs a plumber, locksmith, or electrician right now and does not want to search, call around, or sit in a phone tree. Secondary audience: engineers evaluating an AI-dispatch prototype that already has typed routers, migrations, health checks, and security regressions in place.
+
+**Why Alex built it.** The repository was created 2025-12-07 and seeded on 2025-12-17 as a hackathon entry (commit `8d118c5`, 2025-12-17: "chore(repo): add hackathon docs and github hygiene"; `HACKATHON.md` is a judge review guide). The original README story (commit `4171cb4`, 2025-12-17: "docs(readme): move story to top") records the motivation: "Yuber started in a late night Discord voice call. Three strangers were talking about why every AI app still feels like a chatbot that can't help in the real world ... Pipes bursting. Doors locked. Power failing." Alex handled the agents and automation, with @cipher-rc5 on architecture and @digitalpersonalab on the frontend. In May 2026 the prototype was hardened toward production (PR #22, merged 2026-05-16: health/readiness endpoints, env validation, security headers), and in October 2026 the dependency tree and auth/authorization paths were repaired and covered by CI regressions (PRs #40 to #67, 2026-10-18).
+
+**Real-world use case (2025–2026 evidence).** **Proposed use case.** A renter's kitchen pipe bursts at 11 pm. They type "my kitchen pipe burst and water is everywhere" into Yuber. The help agent classifies the request as emergency plumbing and extracts the location; the dispatch agent queries Yelp Fusion for top-rated plumbers nearby[^3] and creates a pending booking record in Turso/libSQL[^4]; the tracking screen shows the request state while the user shuts off the water. The stack choices are current: the app targets the Next.js 16 release line[^1] and pins Bun 1.3.x as runtime and package manager in `Dockerfile` and CI[^2]. The repository contains the agents, routers, schema, and regression tests for this flow, but no evidence of a live deployment with real providers, so the scenario is proposed rather than verified.
+
+[^1]: Next.js 16 release post, Vercel, published 2025-10-21. https://nextjs.org/blog/next-16
+[^2]: Bun v1.3 release post, published 2025-10-10. https://bun.com/blog/bun-v1.3
+[^3]: Yelp Fusion API introduction, Yelp Developers, page revision dated 2026-07-15. https://docs.developer.yelp.com/docs/fusion-intro
+[^4]: Turso documentation (libSQL hosted database), last modified 2026-07-30. https://docs.turso.tech/
+
 ## Product
 
 Yuber is a full-stack service-discovery and emergency-dispatch application for home incidents. A user describes the problem in plain English, the application classifies the need, searches for relevant providers, creates a booking-oriented workflow, and gives the user a polished mobile-style experience in the browser. The codebase is intentionally designed as a production candidate rather than a static landing page: it includes application routes, API handlers, authentication helpers, tRPC routers, Drizzle schema, migrations, Docker packaging, CI, and deployment documentation.
@@ -36,11 +51,11 @@ Yuber is a full-stack service-discovery and emergency-dispatch application for h
 
 | Layer | Technology | Repository Surface | Purpose |
 |---|---|---|---|
-| Interface | Next.js App Router, React 19, Tailwind CSS, Radix UI | `app/`, `client/src/`, `components/` | Renders the mobile-inspired customer experience and authenticated screens. |
+| Interface | Next.js App Router, React 19, Tailwind CSS, Radix UI | `app/`, `client/src/`, `client/src/components/` | Renders the mobile-inspired customer experience and authenticated screens. |
 | API | Next.js route handlers, tRPC 11, TanStack Query | `app/api/`, `server/routers/` | Provides typed client/server communication and operational endpoints. |
 | AI workflow | Mastra, OpenAI-compatible LLM configuration | `server/mastra/`, `server/_core/llm.ts` | Supports triage, provider matching, and dispatch-oriented assistance. |
 | Persistence | Turso/libSQL, Drizzle ORM | `server/db.ts`, `drizzle/schema.ts`, `drizzle/*.sql` | Stores users, conversations, messages, providers, bookings, reviews, payment metadata, referrals, and search history. |
-| External services | Yelp Fusion, Google Maps, optional Opik | `server/services/`, `.env.example` | Connects discovery, maps, and optional observability integrations. |
+| External services | Yelp Fusion, Google Maps, optional Opik | `server/_core/yelp_*.ts`, `server/_core/opik/`, `.env.example` | Connects discovery, maps, and optional observability integrations. |
 | Delivery | Bun 1.3.4, Docker, Railway, GitHub Actions | `Dockerfile`, `railway.toml`, `.github/workflows/ci.yml` | Builds, validates, and packages the application for production review. |
 
 ### AI Agent Model
@@ -128,18 +143,57 @@ yuberapp1/
 │   ├── api/                # auth, health, OAuth, and tRPC endpoints
 │   └── login/              # login route
 ├── client/src/             # phone-style client application
-│   ├── components/         # reusable UI components
+│   ├── components/         # reusable UI and design-system components
 │   ├── contexts/           # React context providers
 │   ├── hooks/              # custom hooks
 │   └── pages/              # screen-level views
-├── components/             # shared design-system components
 ├── drizzle/                # schema, relations, and migrations
-├── server/                 # backend logic, routers, services, auth, agents
+├── server/                 # backend logic, routers, auth, Yelp clients, agents
+│   ├── _core/              # env, cookies, local auth, LLM, Yelp, Opik helpers
+│   ├── mastra/             # help, dispatch, and settings agents
+│   └── routers/            # tRPC routers
 ├── shared/                 # shared constants and cross-cutting definitions
 ├── scripts/                # database, key verification, and environment tools
 ├── docs/                   # architecture, screenshots, and readiness docs
 └── .github/                # CI, issue templates, pull request template, CODEOWNERS
 ```
+
+## Testing
+
+CI (`.github/workflows/ci.yml`) runs on pull requests, pushes to `main`, and a daily schedule. The `typecheck` job installs with `bun install --frozen-lockfile`, runs `bun run check`, then the regression scripts below, then `bun run build`. The `dependency-audit` job runs `bun audit --audit-level=low`. Branch protection on `main` requires `typecheck`, `dependency-audit`, and `CodeQL` to pass.
+
+| Command | What it covers |
+|---|---|
+| `bun run check` | TypeScript `--noEmit` across the app. |
+| `bun run test:session` | Session issuance, expiry, and rejection paths. |
+| `bun run test:database` | libSQL client and Drizzle compatibility. |
+| `bun run test:opik`, `bun run test:chart`, `bun run test:transport`, `bun run test:telemetry`, `bun run test:math-tooling` | Vendor SDK and dependency-upgrade regressions. |
+| `bun run test:scoped-memory`, `bun run test:mastra` | Scoped memory migration and Mastra provider/workflow compatibility. |
+| `bun scripts/test-application-security.ts` | Cross-account reads/writes, cookie deletion, cross-origin rejection, forged sessions, against a temporary migrated SQLite database and the real tRPC handlers. |
+| `bun run test:vendor-upgrades`, `bun run test:components` | UI library upgrade compatibility. |
+
+These tests run locally against SQLite and mocked providers. They do not exercise a live identity provider, a hosted Turso database, real Yelp or OpenAI traffic, or a deployed environment. Treat them as a build gate, not as deployment verification.
+
+## Deployment
+
+The repository ships `Dockerfile` (built from `oven/bun:1.3.4`, Next.js standalone output, native `HEALTHCHECK` on `/api/health`), `docker-compose.yml`, and `railway.toml`. `bun run validate:env:prod` is the strict configuration gate and fails when a production-required variable is missing.
+
+Not verified in this repository as of 2026-10-20:
+
+- A live identity provider. Demo and email-only login require `ENABLE_LOCAL_DEMO_AUTH=true` and are restricted to localhost development and test; production rejects local/demo sessions, but no real provider login has been integrated or tested here.
+- Session revocation beyond rotating `JWT_SECRET` (rotation invalidates all previously issued sessions; there is no per-session revocation list).
+- Rate limiting or quotas for paid search and AI endpoints.
+- Payments. The schema has payment-method placeholders; no processor is integrated.
+- Provider fulfillment. Dispatch creates pending bookings; no provider acceptance, notification, or completion flow has been run against real providers.
+
+See [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) for the release checklist.
+
+## Security
+
+- Open Dependabot alerts as of 2026-10-20: 0. `bun audit --audit-level=low` reported no vulnerabilities on the same date.
+- Secret scanning and push protection are enabled; Dependabot (Bun and GitHub Actions ecosystems) and CodeQL run on the repository.
+- Baseline HTTP security headers and a CSP are set in `next.config.mjs`; cookies are HttpOnly, SameSite=Lax, and Secure in production.
+- Report vulnerabilities privately as described in [`SECURITY.md`](SECURITY.md). Do not open public issues for security problems.
 
 ## Documentation
 
@@ -179,7 +233,7 @@ Yuber is released under the [MIT License](LICENSE).
 
 <div align="center">
 
-**Built by [Alex Cinovoj](https://github.com/Alexi5000) · [TechTide AI](https://github.com/Alexi5000)**
+**Built by [Alex Cinovoj](https://github.com/Alexi5000), Founder & CTO of TechTide AI**
 
 *Your pipe burst. Help is already on the way.*
 
