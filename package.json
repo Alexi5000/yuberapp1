@@ -78,7 +78,7 @@
     "next": "^16.4.2",
     "next-themes": "^0.4.6",
     "openai": "7.38.0",
-    "opik": "^2.2.103",
+    "opik": "^2.2.119",
     "react": "^19.3.1",
     "react-day-picker": "^10.0.2",
     "react-dom": "^19.3.1",
