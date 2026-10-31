@@ -27,7 +27,7 @@
     "test:components": "bun scripts/test-components.tsx"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^4.0.96",
+    "@ai-sdk/openai": "^4.0.104",
     "@hookform/resolvers": "^5.9.2",
     "@libsql/client": "0.18.0",
     "@mastra/core": "^1.78.0",
