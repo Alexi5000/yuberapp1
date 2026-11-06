@@ -56,5 +56,5 @@ try {
   console.log('PASS: existing app schema/data, known-user binding, ownership, ordered history, limits, pruning, injection resistance, reopen persistence, cleared-session ownership');
 } finally {
   client.close();
-  await rm(directory, { recursive: true, force: true });
+  try { await rm(directory, { recursive: true, force: true }); } catch {}
 }

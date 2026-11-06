@@ -5,8 +5,9 @@ import { join } from 'node:path';
 import { NextRequest } from 'next/server';
 import { SignJWT } from 'jose';
 
+const PRESERVED_ENV = ['PATH', 'HOME', 'TMPDIR', 'TEMP', 'TMP', 'SYSTEMROOT', 'USERPROFILE'];
 for (const name of Object.keys(process.env)) {
-  if (!['PATH', 'HOME', 'TMPDIR'].includes(name)) delete process.env[name];
+  if (!PRESERVED_ENV.includes(name)) delete process.env[name];
 }
 const directory = await mkdtemp(join(tmpdir(), 'yuber-security-'));
 process.env.TURSO_DATABASE_URL = `file:${join(directory, 'test.db')}`;
@@ -103,6 +104,6 @@ try {
   }
   console.log('PASS: production auth denial, default-secret rejection, session claims, cross-user reads/writes, no mutation side effects, customer dispatch restrictions, owner access and cancellation');
 } finally {
-  db.$client.close();
-  await rm(directory, { recursive: true, force: true });
+  try { db.$client.close(); } catch {}
+  try { await rm(directory, { recursive: true, force: true }); } catch {}
 }

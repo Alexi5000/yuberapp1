@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { SignJWT } from "jose";
 
+const PRESERVED_ENV = ['PATH', 'HOME', 'TMPDIR', 'TEMP', 'TMP', 'SYSTEMROOT', 'USERPROFILE'];
 for (const name of Object.keys(process.env)) {
-  if (!["PATH", "HOME", "TMPDIR"].includes(name)) delete process.env[name];
+  if (!PRESERVED_ENV.includes(name)) delete process.env[name];
 }
 process.env.JWT_SECRET = "offline-session-regression-secret-only";
 process.env.NODE_ENV = "test";
