@@ -97,7 +97,7 @@
     "@types/google.maps": "^3.66.7",
     "@types/react": "19.3.0",
     "@types/react-dom": "^19.3.0",
-    "autoprefixer": "^10.6.1",
+    "autoprefixer": "^10.6.2",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.11",
     "postcss": "^8.5.30",
