@@ -3,8 +3,9 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+const PRESERVED_ENV = ['PATH', 'HOME', 'TMPDIR', 'TEMP', 'TMP', 'SYSTEMROOT', 'USERPROFILE'];
 for (const name of Object.keys(process.env)) {
-  if (!['PATH', 'HOME', 'TMPDIR'].includes(name)) delete process.env[name];
+  if (!PRESERVED_ENV.includes(name)) delete process.env[name];
 }
 const directory = await mkdtemp(join(tmpdir(), 'yuber-database-'));
 process.env.TURSO_DATABASE_URL = `file:${join(directory, 'test.db')}`;
@@ -45,6 +46,6 @@ try {
   }
   console.log('PASS: migration, upsert, role, onboarding, conversation/messages, search history, rollback, reopen persistence');
 } finally {
-  db.$client.close();
-  await rm(directory, { recursive: true, force: true });
+  try { db.$client.close(); } catch {}
+  try { await rm(directory, { recursive: true, force: true }); } catch {}
 }
